@@ -4,7 +4,7 @@ import baseUrl from "../APIs/APIs";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const SignUp = () => {
+const SignUp = ({ hostory }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +21,11 @@ const SignUp = () => {
       password: password,
     };
     await axios
-      .post(`${baseUrl}/api/user/register`, userObj)
+      .post(`${baseUrl}/user/signup`, userObj)
       .then((res) => {
-        localStorage.setItem("token", res.data.token);
-        navigate("/dashboard");
+        if (res.data.status === "PENDING") {
+          navigate(`/emailsent/${email}`);
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -48,7 +49,7 @@ const SignUp = () => {
           <h3 className="py-3">Register Here</h3>
           <form onSubmit={handleLoginSubmit}>
             <div className="form-group">
-              <label htmlFor="name">name</label>
+              <label htmlFor="name">Name</label>
               <input
                 type="name"
                 autoFocus
@@ -61,7 +62,7 @@ const SignUp = () => {
             </div>
 
             <div className="form-group mt-3">
-              <label htmlFor="email">email</label>
+              <label htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
@@ -74,7 +75,7 @@ const SignUp = () => {
             </div>
 
             <div className="form-group mt-3">
-              <label htmlFor="password">password</label>
+              <label htmlFor="password">Password</label>
               <input
                 type="password"
                 id="password"

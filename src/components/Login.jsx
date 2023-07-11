@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import baseUrl from "../APIs/APIs";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +10,12 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const param = useParams();
+  const userEmail = param.userEmail;
+
+  useEffect(() => {
+    setEmail(userEmail);
+  }, [userEmail]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -19,12 +25,18 @@ const Login = () => {
       password: password,
     };
     await axios
-      .post(`${baseUrl}/api/user/login`, userObj)
+      .post(`${baseUrl}/user/signin`, userObj)
       .then((res) => {
-        localStorage.setItem("token", res.data.token);
-        navigate("/dashboard");
+        console.log("res : ", res);
+        if (res.data.status === "Success") {
+          localStorage.setItem("token", res.data.token);
+          navigate("/dashboard");
+        } else {
+          setError(res.data.message);
+        }
       })
       .catch((err) => {
+        console.log("Err", err);
         if (err.response && err.response.status === 400) {
           setError(err.response.data.message);
         }
@@ -46,7 +58,7 @@ const Login = () => {
           <h3 className="py-3">Login In</h3>
           <form onSubmit={handleLoginSubmit}>
             <div className="form-gorup">
-              <label htmlFor="email">email</label>
+              <label htmlFor="email">Email</label>
               <input
                 type="email"
                 autoFocus
@@ -59,7 +71,7 @@ const Login = () => {
             </div>
 
             <div className="form-gorup mt-3">
-              <label htmlFor="password">password</label>
+              <label htmlFor="password">Password</label>
               <input
                 type="password"
                 id="password"
