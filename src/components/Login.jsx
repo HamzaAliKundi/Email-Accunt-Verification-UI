@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import baseUrl from "../APIs/APIs";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { ScaleLoader } from "react-spinners";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState("");
 
   const navigate = useNavigate();
   const param = useParams();
@@ -19,28 +21,23 @@ const Login = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const userObj = {
       email: email,
       password: password,
     };
-    await axios
-      .post(`${baseUrl}/user/signin`, userObj)
-      .then((res) => {
-        console.log("res : ", res);
-        if (res.data.status === "Success") {
-          localStorage.setItem("token", res.data.token);
-          navigate("/dashboard");
-        } else {
-          setError(res.data.message);
-        }
-      })
-      .catch((err) => {
-        console.log("Err", err);
-        if (err.response && err.response.status === 400) {
-          setError(err.response.data.message);
-        }
-      });
+    await axios.post(`${baseUrl}/user/signin`, userObj).then((res) => {
+      console.log("res : ", res);
+      if (res.data.status === "Success") {
+        localStorage.setItem("token", res.data.token);
+        navigate("/dashboard");
+        setLoading(false);
+      } else {
+        setLoading(false);
+        setError(res.data.message);
+      }
+    });
   };
 
   return (
@@ -83,7 +80,24 @@ const Login = () => {
               <span className="text-danger">{error}</span>
             </div>
 
-            <button className="btn mt-4 px-5 btn-outline-primary">Login</button>
+            {loading ? (
+              <>
+                <ScaleLoader
+                  className="mt-4"
+                  height={25}
+                  width={6}
+                  color="#0000FF"
+                  margin={2}
+                  speedMultiplier={1.5}
+                />
+              </>
+            ) : (
+              <>
+                <button className="btn mt-4 px-5 btn-outline-primary">
+                  Login
+                </button>
+              </>
+            )}
 
             <div className="mt-3">
               <span>
